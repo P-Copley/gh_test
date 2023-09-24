@@ -1,0 +1,74 @@
+DROP DATABASE
+CREATE DATABASE
+You are now connected to database "nc_snacks" as user "dave".
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 13
+INSERT 0 7
+INSERT 0 23
+INSERT 0 4
+ snack_id |                    snack_name                     | is_vegan | price_in_pence 
+----------+---------------------------------------------------+----------+----------------
+        1 | mars bar                                          | f        |            100
+        2 | oreo                                              | t        |             75
+        3 | party ring                                        | t        |             80
+        4 | snickers                                          | f        |            105
+        5 | kit kat                                           | f        |             70
+        6 | pepsi                                             | f        |             80
+        7 | coffee                                            | t        |            300
+        8 | banana                                            | t        |             45
+        9 | wotsits                                           | f        |             65
+       10 | toast                                             | t        |             10
+       11 | crisp butty                                       | t        |            100
+       12 | chocolate raisins                                 | f        |             10
+       13 | oreo, snickers and banana milk shake... on toast! | f        |           1000
+(13 rows)
+
+ category_id | category_name 
+-------------+---------------
+           1 | chocolate
+           2 | biscuit
+           3 | fruit
+           4 | drink
+           5 | crisps
+           6 | bread
+           7 | nuts
+(7 rows)
+
+ snack_id | category_id 
+----------+-------------
+        1 |           1
+        2 |           1
+        2 |           2
+        3 |           2
+        4 |           1
+        4 |           7
+        5 |           1
+        5 |           2
+        6 |           4
+        7 |           4
+        8 |           3
+        9 |           5
+       10 |           6
+       11 |           5
+       11 |           6
+       12 |           1
+       12 |           3
+       13 |           1
+       13 |           2
+       13 |           7
+       13 |           3
+       13 |           4
+       13 |           6
+(23 rows)
+
+ northcoder_id | first_name |  nickname  | loves_to_code | favourite_snack_id 
+---------------+------------+------------+---------------+--------------------
+             1 | david      | dave       | t             |                 13
+             2 | rose       | big boss   | t             |                  3
+             3 | david      | big boss   | t             |                  3
+             4 | kev        | sem 3 king | t             |                  5
+(4 rows)
+
