@@ -46,8 +46,8 @@ VALUES
 ('wotsits', FALSE, 65),
 ('toast', TRUE, 10),
 ('crisp butty', TRUE, 100),
-('chocolate raisins', FALSE, 10),
-('oreo, snickers and banana milk shake... on toast!', FALSE, 1000);
+('chocolate raisins', FALSE, 120),
+('oreo, snickers and banana milkshake... on toast!', FALSE, 1000);
 
 INSERT INTO categories
 (category_name)
