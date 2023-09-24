@@ -3,7 +3,7 @@ module.exports = [
     first_name: 'david',
     nickname: 'dave',
     loves_to_code: true,
-    favourite_snack: 'oreo, snickers and banana milk shake... on toast!'
+    favourite_snack: 'oreo, snickers and banana milkshake... on toast!'
   },
   {
     first_name: 'rose',
