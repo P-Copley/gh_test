@@ -1,70 +1,58 @@
 const format = require('pg-format');
 const db = require('./connection.js');
+const {
+  formatNorthcoders,
+  createRefObj,
+  formatSnacksCategories
+} = require('./utils.js');
 
 const seed = ({ categories, snacks, northcoders }) => {
-  return db
-    .query('DROP TABLE IF EXISTS northcoders;')
+  return Promise.all([
+    db.query('DROP TABLE IF EXISTS northcoders;'),
+    db.query('DROP TABLE IF EXISTS snacks_categories;')
+  ])
     .then(() => {
-      return db.query('DROP TABLE IF EXISTS snacks_categories;');
+      return Promise.all([
+        db.query('DROP TABLE IF EXISTS categories;'),
+        db.query('DROP TABLE IF EXISTS snacks;')
+      ]);
     })
     .then(() => {
-      return db.query('DROP TABLE IF EXISTS categories;');
+      return Promise.all([
+        db.query(`
+          CREATE TABLE snacks (
+            snack_id SERIAL PRIMARY KEY,
+            snack_name VARCHAR,
+            is_vegan BOOLEAN,
+            price_in_pence INT
+          );
+      `),
+        db.query(`
+          CREATE TABLE categories (
+            category_id SERIAL PRIMARY KEY,
+            category_name TEXT
+          );
+    `)
+      ]);
     })
     .then(() => {
-      return db.query('DROP TABLE IF EXISTS snacks;');
-    })
-    .then(() => {
-      return db.query(`
-        CREATE TABLE snacks (
-          snack_id SERIAL PRIMARY KEY,
-          snack_name VARCHAR,
-          is_vegan BOOLEAN,
-          price_in_pence INT
-        );
-      `);
-    })
-    .then(() => {
-      return db.query(`
-        CREATE TABLE categories (
-          category_id SERIAL PRIMARY KEY,
-          category_name TEXT
-        );
-      `);
-    })
-    .then(() => {
-      return db.query(`
-        CREATE TABLE snacks_categories (
-          snack_id INT REFERENCES snacks(snack_id),
-          category_id INT REFERENCES categories(category_id)
-        );
-      `);
-    })
-    .then(() => {
-      return db.query(`
-        CREATE TABLE northcoders (
-          northcoder_id SERIAL PRIMARY KEY,
-          first_name VARCHAR,
-          nickname TEXT,
-          loves_to_code BOOLEAN,
-          favourite_snack_id INT REFERENCES snacks(snack_id)
-        );
-      `);
-    })
-    .then(() => {
-      const formattedCategories = categories.map((category) => {
-        return [category.category_name];
-      });
-      const insertCategoriesQueryString = format(
-        `
-        INSERT INTO categories
-        (category_name)
-        VALUES
-        %L;
-      `,
-        formattedCategories
-      );
-
-      return db.query(insertCategoriesQueryString);
+      return Promise.all([
+        db.query(`
+          CREATE TABLE snacks_categories (
+            snack_id INT REFERENCES snacks(snack_id),
+            category_id INT REFERENCES categories(category_id)
+          );
+      `),
+        db.query(`
+          CREATE TABLE northcoders (
+            northcoder_id SERIAL PRIMARY KEY,
+            first_name VARCHAR,
+            nickname TEXT,
+            loves_to_code BOOLEAN,
+            favourite_snack_id INT REFERENCES snacks(snack_id)
+          );
+    `)
+      ]);
     })
     .then(() => {
       const formattedSnacks = snacks.map((snack) => {
@@ -81,24 +69,34 @@ const seed = ({ categories, snacks, northcoders }) => {
         formattedSnacks
       );
 
-      return db.query(insertSnacksQueryString);
-    })
-    .then((result) => {
-      const insertedSnacks = result.rows;
-      const formattedNorthcoders = northcoders.map((northcoder) => {
-        const northcoderFavouriteSnack = insertedSnacks.find((snack) => {
-          return snack.snack_name === northcoder.favourite_snack;
-        });
-
-        const favourite_snack_id = northcoderFavouriteSnack.snack_id;
-        return [
-          northcoder.first_name,
-          northcoder.nickname,
-          northcoder.loves_to_code,
-          favourite_snack_id
-        ];
+      const formattedCategories = categories.map((category) => {
+        return [category.category_name];
       });
+      const insertCategoriesQueryString = format(
+        `
+        INSERT INTO categories
+        (category_name)
+        VALUES
+        %L
+        RETURNING *;
+      `,
+        formattedCategories
+      );
 
+      return Promise.all([
+        db.query(insertSnacksQueryString),
+        db.query(insertCategoriesQueryString)
+      ]);
+    })
+    .then(([{ rows: insertedSnacks }, { rows: insertedCategories }]) => {
+      const snackRef = createRefObj(insertedSnacks, 'snack_name', 'snack_id');
+      const categoryRef = createRefObj(
+        insertedCategories,
+        'category_name',
+        'category_id'
+      );
+
+      const formattedNorthcoders = formatNorthcoders(northcoders, snackRef);
       const insertNorthcodersQueryString = format(
         `
         INSERT INTO northcoders
@@ -109,7 +107,25 @@ const seed = ({ categories, snacks, northcoders }) => {
         formattedNorthcoders
       );
 
-      return db.query(insertNorthcodersQueryString);
+      const formattedSnacksCategories = formatSnacksCategories(
+        snacks,
+        snackRef,
+        categoryRef
+      );
+      const insertSnacksCategoriesQueryString = format(
+        `
+        INSERT INTO snacks_categories
+        (snack_id, category_id)
+        VALUES
+        %L;
+      `,
+        formattedSnacksCategories
+      );
+
+      return Promise.all([
+        db.query(insertNorthcodersQueryString),
+        db.query(insertSnacksCategoriesQueryString)
+      ]);
     });
 };
 
