@@ -40,6 +40,38 @@ describe("GET /api/snacks", () => {
         });
       });
   });
+  test("snack objects should be ordered by snack_name alphabetically by default", () => {
+    return request(app)
+      .get("/api/snacks")
+      .then(({ body }) => {
+        expect(body.snacks).toBeSortedBy("snack_name");
+      });
+  });
+  test("sortby query allows for snacks to be sorted by price", () => {
+    return request(app)
+      .get("/api/snacks?sortby=price")
+      .then(({ body }) => {
+        expect(body.snacks).toBeSortedBy("price_in_pence");
+      });
+  });
+  test("invalid sortby query responds with 400 and helpful message", () => {
+    return request(app)
+      .get("/api/snacks?sortby=invalid-sortby")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid sort by query!!!!");
+      });
+  });
+  test("maxprice query filters out snacks costing more than value ", () => {
+    return request(app)
+      .get("/api/snacks?maxprice=200")
+      .then(({ body }) => {
+        expect(body.snacks).toHaveLength(2);
+        body.snacks.forEach((snack) => {
+          expect(snack.price_in_pence).toBeLessThan(200);
+        });
+      });
+  });
 });
 
 describe("GET /api/snacks/:snack_id", () => {
