@@ -1,6 +1,6 @@
 const db = require('../db/connection');
 
-exports.fetchSnacks = (sortby = 'snack_name', maxprice) => {
+exports.fetchSnacks = (sortby = 'snack_name', maxprice, category_id) => {
   const validSortBys = {
     price: 'price_in_pence',
     snack_name: 'snack_name',
@@ -15,6 +15,15 @@ exports.fetchSnacks = (sortby = 'snack_name', maxprice) => {
 
   let query = `SELECT * FROM snacks`;
   const values = [];
+
+  if (category_id) {
+    query += `
+    JOIN snacks_categories
+    ON snacks_categories.snack_id = snacks.snack_id
+    WHERE category_id = $${values.length + 1}
+    `;
+    values.push(category_id);
+  }
 
   if (maxprice !== undefined) {
     query += ` WHERE price_in_pence < $${values.length + 1}`;

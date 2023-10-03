@@ -15,5 +15,6 @@ exports.handleCustomErrors = (err, req, res, next) => {
 };
 
 exports.handle500Errors = (err, req, res, next) => {
+  console.log(err, 'ERROR: unhandled error, fix me please');
   res.status(500).send({ message: 'internal server error!' });
 };

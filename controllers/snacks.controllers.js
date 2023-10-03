@@ -1,14 +1,18 @@
+const { fetchCategoryById } = require('../models/categories.models');
 const {
   fetchSnacks,
   fetchSnackById,
   createSnack,
-} = require("../models/snacks.models");
+} = require('../models/snacks.models');
 
 exports.getSnacks = (req, res, next) => {
-  const { sortby, maxprice } = req.query;
+  const { sortby, maxprice, category_id } = req.query;
 
-  fetchSnacks(sortby, maxprice)
-    .then((snacks) => {
+  const promises = [fetchSnacks(sortby, maxprice, category_id)];
+  if (category_id) promises.push(fetchCategoryById(category_id));
+
+  Promise.all(promises)
+    .then(([snacks]) => {
       res.status(200).send({ snacks });
     })
     .catch((err) => {
@@ -18,6 +22,7 @@ exports.getSnacks = (req, res, next) => {
 
 exports.getSnackById = (req, res, next) => {
   const { snack_id } = req.params;
+
   fetchSnackById(snack_id)
     .then((snack) => {
       res.status(200).send({ snack });
