@@ -1,15 +1,15 @@
-const db = require("../db/connection");
+const db = require('../db/connection');
 
-exports.fetchSnacks = (sortby = "snack_name", maxprice) => {
+exports.fetchSnacks = (sortby = 'snack_name', maxprice) => {
   const validSortBys = {
-    price: "price_in_pence",
-    snack_name: "snack_name",
+    price: 'price_in_pence',
+    snack_name: 'snack_name',
   };
 
   if (!(sortby in validSortBys)) {
     return Promise.reject({
       status: 400,
-      message: "Invalid sort by query!!!!",
+      message: 'Invalid sort by query!!!!',
     });
   }
 
@@ -17,7 +17,7 @@ exports.fetchSnacks = (sortby = "snack_name", maxprice) => {
   const values = [];
 
   if (maxprice !== undefined) {
-    query += ` WHERE price_in_pence < $1`;
+    query += ` WHERE price_in_pence < $${values.length + 1}`;
     values.push(maxprice);
   }
   query += ` ORDER BY ${validSortBys[sortby]};`;
@@ -32,7 +32,7 @@ exports.fetchSnackById = (id) => {
     .query(`SELECT * FROM snacks WHERE snack_id=$1;`, [id])
     .then(({ rows }) => {
       if (rows.length === 0) {
-        return Promise.reject({ status: 404, message: "id not found!" });
+        return Promise.reject({ status: 404, message: 'id not found!' });
       } else {
         return rows[0];
       }
