@@ -3,6 +3,7 @@ const {
   fetchSnacks,
   fetchSnackById,
   createSnack,
+  updateSnack,
 } = require('../models/snacks.models');
 
 exports.getSnacks = (req, res, next) => {
@@ -38,4 +39,19 @@ exports.postSnack = (req, res, next) => {
   createSnack(snack_name, price_in_pence, is_vegan).then((newSnack) => {
     res.status(201).send({ snack: newSnack });
   });
+};
+
+exports.patchSnack = (req, res, next) => {
+  const { snack_id } = req.params;
+  const { price_in_pence } = req.body;
+
+  if (price_in_pence === undefined) {
+    return next({ status: 400, message: 'price_in_pence is required' });
+  }
+
+  updateSnack(snack_id, price_in_pence)
+    .then((snack) => {
+      res.status(200).send({ snack });
+    })
+    .catch((err) => next(err));
 };

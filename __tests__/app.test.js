@@ -136,3 +136,42 @@ describe('POST /api/snacks', () => {
       });
   });
 });
+
+// PATCH - partial update - { price_in_pence: 100 }
+// Send the update as part of the request
+// respond with the updated resource
+
+// Error handling
+// any way this request can be done wrong -> respond with appropriate status codes
+//
+describe.only('PATCH /api/snacks', () => {
+  test('200: responds with the updated snack', () => {
+    const snackUpdate = {
+      price_in_pence: 10000,
+    };
+
+    return request(app)
+      .patch('/api/snacks/1')
+      .send(snackUpdate)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.snack).toMatchObject({
+          snack_id: 1,
+          snack_name: 'oreo',
+          is_vegan: true,
+          price_in_pence: 10000,
+        });
+      });
+  });
+  test('400: for missing price_in_pence', () => {
+    const snackUpdate = {};
+
+    return request(app)
+      .patch('/api/snacks/1')
+      .send(snackUpdate)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe('price_in_pence is required');
+      });
+  });
+});

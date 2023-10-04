@@ -61,3 +61,19 @@ exports.createSnack = (snack_name, price_in_pence, is_vegan) => {
       return newSnack;
     });
 };
+
+exports.updateSnack = (snack_id, price_in_pence) => {
+  return db
+    .query(
+      `
+    UPDATE snacks
+    SET price_in_pence = $1
+    WHERE snack_id = $2
+    RETURNING *;
+  `,
+      [price_in_pence, snack_id]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
