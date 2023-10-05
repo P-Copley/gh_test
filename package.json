@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node listen.js",
     "test": "jest",
     "setup-db": "psql -f db/setup-db.sql",
     "seed": "node db/run-seed.js",
+    "seed-prod": "NODE_ENV=production node db/run-seed.js",
     "playground": "psql -f playground.sql > playground.txt"
   },
   "keywords": [],
