@@ -40,6 +40,4 @@ jobs:
     needs: test
     steps:
       - name: To the mOON!!!
-        env:
-          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: curl $DEPLOY_URL
+        run: curl ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
