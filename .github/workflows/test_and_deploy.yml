@@ -34,3 +34,11 @@ jobs:
 
       - name: Run tests
         run: PGDATABASE=my_db PGUSER=test_user PGPASSWORD=test_password npm t
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: To the mOON!!!
+        env:
+          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: curl $DEPLOY_URL
